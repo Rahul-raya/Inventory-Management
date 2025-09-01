@@ -1,7 +1,5 @@
 package com.example.Inventory.Management.Exception;
 
-import com.example.Inventory.Management.Exception.ProductNotFoundException;
-import com.example.Inventory.Management.Exception.InsufficientStockException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
