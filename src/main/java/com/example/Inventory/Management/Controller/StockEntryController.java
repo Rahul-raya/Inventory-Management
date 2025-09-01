@@ -5,6 +5,7 @@ import com.example.Inventory.Management.Service.StockEntryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
 @RestController
 @RequestMapping("/stock-entries")
@@ -13,10 +14,20 @@ public class StockEntryController {
 
     private final StockEntryService stockEntryService;
 
+    @GetMapping
+    public List<StockEntry> getAllStockEntries() {
+        return stockEntryService.getAllStockEntries();
+    }
 
     @GetMapping("/{id}")
     public StockEntry getStockEntryById(@PathVariable Long id) {
         return stockEntryService.getStockEntryById(id);
+    }
+
+    // MISSING ENDPOINT - ADD THIS:
+    @GetMapping("/product/{productId}")
+    public List<StockEntry> getStockEntriesByProduct(@PathVariable Long productId) {
+        return stockEntryService.getStockEntriesByProduct(productId);
     }
 
     @PostMapping

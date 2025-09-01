@@ -39,4 +39,20 @@ public class ProductController {
         productService.deleteProduct(id);
         return "Product deleted successfully!";
     }
+
+    
+    @GetMapping("/search")
+    public List<Product> searchProducts(@RequestParam String name) {
+        return productService.searchProductsByName(name);
+    }
+
+    @GetMapping("/category/{categoryName}")
+    public List<Product> getProductsByCategory(@PathVariable String categoryName) {
+        return productService.getProductsByCategory(categoryName);
+    }
+
+    @GetMapping("/low-stock")
+    public List<Product> getLowStockProducts(@RequestParam Integer threshold) {
+        return productService.getLowStockProducts(threshold);
+    }
 }

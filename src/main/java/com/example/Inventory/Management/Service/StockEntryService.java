@@ -9,4 +9,5 @@ public interface StockEntryService {
     StockEntry updateStockEntry(Long id, StockEntry stockEntry);
     StockEntry getStockEntryById(Long id);
     void deleteStockEntry(Long id);
+    List<StockEntry> getAllStockEntries();
 }
