@@ -5,6 +5,7 @@ import com.example.Inventory.Management.Service.SupplierService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -25,12 +26,12 @@ public class SupplierController {
     }
 
     @PostMapping
-    public Supplier saveSupplier(@RequestBody Supplier supplier) {
+    public Supplier saveSupplier(@Valid @RequestBody Supplier supplier) {
         return supplierService.saveSupplier(supplier);
     }
 
     @PutMapping("/{id}")
-    public Supplier updateSupplier(@PathVariable Long id, @RequestBody Supplier supplier) {
+    public Supplier updateSupplier(@PathVariable Long id, @Valid @RequestBody Supplier supplier) {
         return supplierService.updateSupplier(id, supplier);
     }
 

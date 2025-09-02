@@ -1,9 +1,9 @@
 package com.example.Inventory.Management.Service.Impl;
 
 import com.example.Inventory.Management.Entity.Supplier;
+import com.example.Inventory.Management.Exception.SupplierNotFoundException;
 import com.example.Inventory.Management.Repository.SupplierRepository;
 import com.example.Inventory.Management.Service.SupplierService;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +23,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     public Supplier getSupplierById(Long id) {
         return supplierRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Supplier not found"));
+                .orElseThrow(() -> new SupplierNotFoundException(id));
     }
 
     @Override
@@ -33,11 +33,12 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     public void deleteSupplier(Long id) {
-        // Consider checking if supplier has associated products before deletion
         Supplier supplier = getSupplierById(id);
+        
         if (!supplier.getProducts().isEmpty()) {
             throw new RuntimeException("Cannot delete supplier that has associated products");
         }
+        
         supplierRepository.deleteById(id);
     }
 
@@ -46,7 +47,6 @@ public class SupplierServiceImpl implements SupplierService {
         Supplier existingSupplier = getSupplierById(id);
         existingSupplier.setName(supplier.getName());
         existingSupplier.setContactNumber(supplier.getContactNumber());
-        // FIX: Missing email update
         existingSupplier.setEmail(supplier.getEmail());
         return supplierRepository.save(existingSupplier);
     }

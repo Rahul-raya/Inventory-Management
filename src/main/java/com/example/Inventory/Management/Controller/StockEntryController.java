@@ -5,6 +5,7 @@ import com.example.Inventory.Management.Service.StockEntryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -24,19 +25,18 @@ public class StockEntryController {
         return stockEntryService.getStockEntryById(id);
     }
 
-    // MISSING ENDPOINT - ADD THIS:
     @GetMapping("/product/{productId}")
     public List<StockEntry> getStockEntriesByProduct(@PathVariable Long productId) {
         return stockEntryService.getStockEntriesByProduct(productId);
     }
 
     @PostMapping
-    public StockEntry saveStockEntry(@RequestBody StockEntry stockEntry) {
+    public StockEntry saveStockEntry(@Valid @RequestBody StockEntry stockEntry) {
         return stockEntryService.addStockEntry(stockEntry);
     }
 
     @PutMapping("/{id}")
-    public StockEntry updateStockEntry(@PathVariable Long id, @RequestBody StockEntry stockEntry) {
+    public StockEntry updateStockEntry(@PathVariable Long id, @Valid @RequestBody StockEntry stockEntry) {
         return stockEntryService.updateStockEntry(id, stockEntry);
     }
 

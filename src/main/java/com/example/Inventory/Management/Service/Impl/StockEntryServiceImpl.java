@@ -2,12 +2,14 @@ package com.example.Inventory.Management.Service.Impl;
 
 import com.example.Inventory.Management.Entity.Product;
 import com.example.Inventory.Management.Entity.StockEntry;
+import com.example.Inventory.Management.Exception.InsufficientStockException;
+import com.example.Inventory.Management.Exception.ProductNotFoundException;
+import com.example.Inventory.Management.Exception.StockEntryNotFoundException;
 import com.example.Inventory.Management.Repository.ProductRepository;
 import com.example.Inventory.Management.Repository.StockEntryRepository;
 import com.example.Inventory.Management.Service.StockEntryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,66 +21,74 @@ public class StockEntryServiceImpl implements StockEntryService {
     private final ProductRepository productRepository;
 
     @Override
-    @Transactional
     public StockEntry addStockEntry(StockEntry stockEntry) {
-        // Validate product id
         Long productId = stockEntry.getProduct().getId();
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
+                .orElseThrow(() -> new ProductNotFoundException(productId));
 
-        // Handle stock changes
-        if ("SALE".equalsIgnoreCase(stockEntry.getType())) {
+        String type = stockEntry.getType().toUpperCase();
+        if (!type.equals("SALE") && !type.equals("PURCHASE")) {
+            throw new RuntimeException("Invalid stock entry type. Must be PURCHASE or SALE.");
+        }
+        if ("SALE".equals(type)) {
             if (product.getQuantity() < stockEntry.getQuantity()) {
-                throw new RuntimeException("Not enough stock available for product id: " + productId);
+                throw new InsufficientStockException(
+                    product.getName(), 
+                    product.getQuantity(), 
+                    stockEntry.getQuantity()
+                );
             }
             product.setQuantity(product.getQuantity() - stockEntry.getQuantity());
-        } else if ("PURCHASE".equalsIgnoreCase(stockEntry.getType())) {
+        } else if ("PURCHASE".equals(type)) {
             product.setQuantity(product.getQuantity() + stockEntry.getQuantity());
-        } else {
-            throw new RuntimeException("Invalid stock entry type. Must be PURCHASE or SALE.");
         }
 
         productRepository.save(product);
         stockEntry.setProduct(product);
+        stockEntry.setType(type);
+        
         return stockEntryRepository.save(stockEntry);
     }
 
     @Override
     public List<StockEntry> getStockEntriesByProduct(Long productId) {
+        productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productId));
+        
         return stockEntryRepository.findByProduct_Id(productId);
     }
 
     @Override
-    @Transactional
     public StockEntry updateStockEntry(Long id, StockEntry stockEntry) {
         StockEntry existingEntry = getStockEntryById(id);
         Product oldProduct = existingEntry.getProduct();
-        
-        // Reverse the old stock change
-        if ("SALE".equalsIgnoreCase(existingEntry.getType())) {
-            oldProduct.setQuantity(oldProduct.getQuantity() + existingEntry.getQuantity());
-        } else if ("PURCHASE".equalsIgnoreCase(existingEntry.getType())) {
-            oldProduct.setQuantity(oldProduct.getQuantity() - existingEntry.getQuantity());
-        }
-
-        // Get the new product (might be different)
-        Long newProductId = stockEntry.getProduct().getId();
-        Product newProduct = productRepository.findById(newProductId)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + newProductId));
-
-        // Apply the new stock change
-        if ("SALE".equalsIgnoreCase(stockEntry.getType())) {
-            if (newProduct.getQuantity() < stockEntry.getQuantity()) {
-                throw new RuntimeException("Not enough stock available for product id: " + newProductId);
-            }
-            newProduct.setQuantity(newProduct.getQuantity() - stockEntry.getQuantity());
-        } else if ("PURCHASE".equalsIgnoreCase(stockEntry.getType())) {
-            newProduct.setQuantity(newProduct.getQuantity() + stockEntry.getQuantity());
-        } else {
+        String newType = stockEntry.getType().toUpperCase();
+        if (!newType.equals("SALE") && !newType.equals("PURCHASE")) {
             throw new RuntimeException("Invalid stock entry type. Must be PURCHASE or SALE.");
         }
+        if ("SALE".equals(existingEntry.getType().toUpperCase())) {
+            oldProduct.setQuantity(oldProduct.getQuantity() + existingEntry.getQuantity());
+        } else if ("PURCHASE".equals(existingEntry.getType().toUpperCase())) {
+            oldProduct.setQuantity(oldProduct.getQuantity() - existingEntry.getQuantity());
+        }
+        Long newProductId = stockEntry.getProduct().getId();
+        Product newProduct = productRepository.findById(newProductId)
+                .orElseThrow(() -> new ProductNotFoundException(newProductId));
 
-        // Save products and update entry
+
+        if ("SALE".equals(newType)) {
+            if (newProduct.getQuantity() < stockEntry.getQuantity()) {
+                throw new InsufficientStockException(
+                    newProduct.getName(), 
+                    newProduct.getQuantity(), 
+                    stockEntry.getQuantity()
+                );
+            }
+            newProduct.setQuantity(newProduct.getQuantity() - stockEntry.getQuantity());
+        } else if ("PURCHASE".equals(newType)) {
+            newProduct.setQuantity(newProduct.getQuantity() + stockEntry.getQuantity());
+        }
+
         productRepository.save(oldProduct);
         if (!oldProduct.getId().equals(newProduct.getId())) {
             productRepository.save(newProduct);
@@ -86,7 +96,7 @@ public class StockEntryServiceImpl implements StockEntryService {
 
         existingEntry.setProduct(newProduct);
         existingEntry.setQuantity(stockEntry.getQuantity());
-        existingEntry.setType(stockEntry.getType());
+        existingEntry.setType(newType);
         existingEntry.setDate(stockEntry.getDate());
 
         return stockEntryRepository.save(existingEntry);
@@ -95,19 +105,23 @@ public class StockEntryServiceImpl implements StockEntryService {
     @Override
     public StockEntry getStockEntryById(Long id) {
         return stockEntryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Stock entry not found with id: " + id));
+                .orElseThrow(() -> new StockEntryNotFoundException(id));
     }
 
     @Override
-    @Transactional
     public void deleteStockEntry(Long id) {
         StockEntry stockEntry = getStockEntryById(id);
         Product product = stockEntry.getProduct();
-        
-        // Reverse the stock change when deleting
-        if ("SALE".equalsIgnoreCase(stockEntry.getType())) {
+        if ("SALE".equals(stockEntry.getType().toUpperCase())) {
             product.setQuantity(product.getQuantity() + stockEntry.getQuantity());
-        } else if ("PURCHASE".equalsIgnoreCase(stockEntry.getType())) {
+        } else if ("PURCHASE".equals(stockEntry.getType().toUpperCase())) {
+            if (product.getQuantity() < stockEntry.getQuantity()) {
+                throw new InsufficientStockException(
+                    product.getName(), 
+                    product.getQuantity(), 
+                    stockEntry.getQuantity()
+                );
+            }
             product.setQuantity(product.getQuantity() - stockEntry.getQuantity());
         }
         
@@ -115,7 +129,6 @@ public class StockEntryServiceImpl implements StockEntryService {
         stockEntryRepository.deleteById(id);
     }
 
-    // MISSING METHOD - ADD THIS:
     @Override
     public List<StockEntry> getAllStockEntries() {
         return stockEntryRepository.findAll();

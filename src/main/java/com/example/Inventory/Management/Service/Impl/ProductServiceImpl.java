@@ -1,9 +1,9 @@
 package com.example.Inventory.Management.Service.Impl;
 
 import com.example.Inventory.Management.Entity.Product;
+import com.example.Inventory.Management.Exception.ProductNotFoundException;
 import com.example.Inventory.Management.Repository.ProductRepository;
 import com.example.Inventory.Management.Service.ProductService;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +23,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product updateProduct(Long id, Product product) {
         Product existing = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ProductNotFoundException(id));
 
         existing.setName(product.getName());
         existing.setPrice(product.getPrice());
@@ -36,13 +36,19 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(Long id) {
+        Product product = getProductById(id);
+        
+        if (!product.getStockEntries().isEmpty()) {
+            throw new RuntimeException("Cannot delete product that has stock entries");
+        }
+        
         productRepository.deleteById(id);
     }
 
     @Override
     public Product getProductById(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
     @Override

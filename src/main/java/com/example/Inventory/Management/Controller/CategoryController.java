@@ -1,10 +1,12 @@
 package com.example.Inventory.Management.Controller;
 
+
 import com.example.Inventory.Management.Entity.Category;
 import com.example.Inventory.Management.Service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -25,12 +27,12 @@ public class CategoryController {
     }
 
     @PostMapping
-    public Category saveCategory(@RequestBody Category category) {
+    public Category saveCategory(@Valid @RequestBody Category category) {
         return categoryService.saveCategory(category);
     }
 
     @PutMapping("/{id}")
-    public Category updateCategory(@PathVariable Long id, @RequestBody Category category) {
+    public Category updateCategory(@PathVariable Long id, @Valid @RequestBody Category category) {
         return categoryService.updateCategory(id, category);
     }
 

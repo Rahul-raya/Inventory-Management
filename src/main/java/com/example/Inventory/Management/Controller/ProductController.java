@@ -5,6 +5,7 @@ import com.example.Inventory.Management.Service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -25,12 +26,12 @@ public class ProductController {
     }
 
     @PostMapping
-    public Product createProduct(@RequestBody Product product) {
+    public Product createProduct(@Valid @RequestBody Product product) {
         return productService.saveProduct(product);
     }
 
     @PutMapping("/{id}")
-    public Product updateProduct(@PathVariable Long id, @RequestBody Product product) {
+    public Product updateProduct(@PathVariable Long id, @Valid @RequestBody Product product) {
         return productService.updateProduct(id, product);
     }
 
@@ -40,7 +41,6 @@ public class ProductController {
         return "Product deleted successfully!";
     }
 
-    
     @GetMapping("/search")
     public List<Product> searchProducts(@RequestParam String name) {
         return productService.searchProductsByName(name);
