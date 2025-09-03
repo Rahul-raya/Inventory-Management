@@ -1,5 +1,11 @@
 package com.example.Inventory.Management.Controller;
 
+import com.example.Inventory.Management.Service.ML.LinearRegressionPredictionService;
+import com.example.Inventory.Management.Service.ML.PredictionValidationService;
+import com.example.Inventory.Management.Service.ML.InventoryPrediction;
+import org.springframework.beans.factory.annotation.Autowired;
+import java.util.ArrayList;
+
 import com.example.Inventory.Management.Entity.Product;
 import com.example.Inventory.Management.Service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +20,12 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+
+    @Autowired
+    private LinearRegressionPredictionService linearRegressionService;
+
+    @Autowired
+    private PredictionValidationService validationService;
 
     @GetMapping
     public List<Product> getAllProducts() {
@@ -54,5 +66,42 @@ public class ProductController {
     @GetMapping("/low-stock")
     public List<Product> getLowStockProducts(@RequestParam Integer threshold) {
         return productService.getLowStockProducts(threshold);
+    }
+
+    @GetMapping("/{id}/prediction")
+    public InventoryPrediction getInventoryPrediction(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "30") int days) {
+        return linearRegressionService.predictInventoryWithLinearRegression(id, days);
+    }
+
+    @GetMapping("/{id}/prediction/multiple-regression")
+    public InventoryPrediction getMultipleRegressionPrediction(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "30") int days) {
+        return linearRegressionService.predictWithMultipleFeatures(id, days);
+    }
+
+    @GetMapping("/{id}/validate-model")
+    public PredictionValidationService.ModelValidationResult validatePredictionModel(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "7") int testDays) {
+        return validationService.validateModel(id, testDays);
+    }
+
+    @GetMapping("/restock-recommendations")
+    public List<InventoryPrediction> getRestockRecommendations() {
+        List<Product> allProducts = productService.getAllProducts();
+        List<InventoryPrediction> recommendations = new ArrayList<>();
+
+        for (Product product : allProducts) {
+            InventoryPrediction prediction = linearRegressionService
+                    .predictInventoryWithLinearRegression(product.getId(), 30);
+            if (prediction.isRestockNeeded()) {
+                recommendations.add(prediction);
+            }
+        }
+
+        return recommendations;
     }
 }
