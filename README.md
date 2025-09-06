@@ -12,7 +12,7 @@ This system provides **REST APIs** for inventory management and demand forecasti
 - Tracks **purchases** (incoming stock) and **sales** (outgoing stock).
 - Automatically updates stock levels in real-time.
 
-### 📈 Stock Prediction (ML in Java)
+### 📈 Stock Prediction 
 - Implements **Linear Regression** from scratch using Java.
 - Predicts **future stock demand** using historical sales data.
 - Helps reduce overstocking and stockouts by providing accurate forecasts.
