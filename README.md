@@ -1,38 +1,126 @@
-# Inventory Management System
+Inventory Management System 📦
+A Java-based inventory management application built with Spring Boot, using MySQL for data persistence and Postman for API testing. This project provides a robust RESTful API for managing inventory items efficiently.
+Features ✨
 
-A Java-based inventory management application built with Spring Boot, using MySQL for data persistence and Postman for API testing.
+RESTful CRUD API: Create, Read, Update, and Delete operations for inventory items using Spring Boot.
+MySQL Integration: Persistent storage and management of inventory data.
+API Testing: Validated and tested endpoints using Postman.
+Structured Project: Built with Maven, including pom.xml and .mvn wrapper for consistent builds.
+Version Control: Includes .gitignore and .gitattributes for streamlined repository management.
 
----
+Tech Stack 🛠️
 
-##  Features
 
-- **RESTful CRUD API** for inventory items (Create, Read, Update, Delete) using Spring Boot.
-- **MySQL** integration for managing and storing inventory data.
-- API testing and validation using **Postman**.
-- Structured Java project with Maven (`pom.xml`) and `.mvn` wrapper for consistent builds.
-- Includes essential configuration files: `.gitignore`, `.gitattributes`.
 
----
+Technology
+Description
+Badge
 
-##  Tech Stack
 
-- ![Java](https://img.shields.io/badge/Java-ED8B00?style=flat&logo=openjdk&logoColor=white)
-- ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-6DB33F?style=flat&logo=springboot&logoColor=white)
-- ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat&logo=mysql&logoColor=white)
-- ![Postman](https://img.shields.io/badge/Postman-FF6C37?style=flat&logo=postman&logoColor=white)
 
----
+Java
+Core programming language (Java 11 or higher)
 
-##  Project Setup
 
-### Prerequisites
-- Java 11 or higher
-- Maven
-- MySQL (running locally or remote)
 
-### Installation Steps
+Spring Boot
+Framework for building RESTful APIs
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Rahul-raya/Inventory-Management.git
-   cd Inventory-Management
+
+
+MySQL
+Database for storing inventory data
+
+
+
+Postman
+Tool for API testing and validation
+
+
+
+Maven
+Dependency management and build tool
+
+
+
+Project Setup ⚙️
+
+Click to expand setup instructions
+
+Prerequisites
+
+Java 11 or higher: Ensure Java Development Kit (JDK) is installed.
+Maven: For dependency management and building the project.
+MySQL: Running locally or remotely (version 8.0 or higher recommended).
+Postman (optional): For testing API endpoints.
+
+Installation Steps
+
+Clone the Repository:
+git clone https://github.com/Rahul-raya/Inventory-Management.git
+cd Inventory-Management
+
+
+Configure MySQL:
+
+Ensure MySQL is running.
+Create a database (e.g., inventory_db).
+Update the application.properties file in src/main/resources with your MySQL credentials:spring.datasource.url=jdbc:mysql://localhost:3306/inventory_db
+spring.datasource.username=your_username
+spring.datasource.password=your_password
+spring.jpa.hibernate.ddl-auto=update
+
+
+
+
+Build the Project:
+mvn clean install
+
+
+Run the Application:
+mvn spring-boot:run
+
+The application will start on http://localhost:8080.
+
+
+
+
+Usage 🚀
+
+Click to expand usage instructions
+
+
+Access the API: The application runs on http://localhost:8080/api/inventory.
+Test with Postman:
+Import the Postman collection (if provided) or manually test the endpoints.
+Example endpoints:
+GET /api/inventory: Retrieve all inventory items.
+POST /api/inventory: Create a new inventory item.
+PUT /api/inventory/{id}: Update an existing item.
+DELETE /api/inventory/{id}: Delete an item.
+
+
+
+
+Sample JSON Payload (for creating an item):{
+  "name": "Sample Item",
+  "quantity": 100,
+  "price": 29.99
+}
+
+
+
+
+
+Contributing 🤝
+
+Fork the repository.
+Create a new branch (git checkout -b feature-branch).
+Make your changes and commit (git commit -m "Add feature").
+Push to the branch (git push origin feature-branch).
+Create a Pull Request.
+
+License 📄
+This project is licensed under the MIT License - see the LICENSE file for details.
+Contact 📬
+For questions or feedback, reach out to Rahul Raya.
